@@ -37,7 +37,7 @@ const fill = {
      * @param {string} input answer to textBox
      */
     text: async (handle, input) => {
-        const inputHandle = await handle.$('input.quantumWizTextinputPaperinputInput');
+        const inputHandle = await handle.$('input.quantumWizTextinputPaperinputInput,textarea.quantumWizTextinputPapertextareaInput');
         await inputHandle.type(input);
     },
 
