@@ -12,7 +12,7 @@ const selector = {
 const questionAnswers = new Map([
     ['問題一、請填您的姓名？(本名)', '我的名字'],
     ['問題二、今日量測體溫溫度？', '溫度'],
-    ['問題三、目前您有沒有身體不舒服或發燒症狀？', '沒有'],
+    ['問題三、目前您有沒有身體不舒服或發燒症狀？', '無'],
     ['問題四、承上題說明？(例如：其他-我牙痛新竹牙醫就診)', '無'],
     ['問題五、目前您家人中有沒有身體不舒服或發燒症狀？', '沒有'],
     ['問題六、承上題說明？(例如：我媽，昨天去診所看喉嚨痛、我爸，昨天因車禍擦撞有至醫院就診)', '無'],
@@ -45,7 +45,11 @@ const fill = {
      * @param {puppeteer.ElementHandle<Element>} handle containerHandle
      * @param {string} input 
      */
-    checkBox: async (handle, input) => { },
+    checkBox: async (handle, input) => {
+        await handle.$eval(`[data-answer-value="${input}"] .quantumWizTogglePapercheckboxCheckMark`, node => {
+            node.click();
+        });
+    },
 
     /**
      * @param {puppeteer.ElementHandle<Element>} handle containerHandle
@@ -56,7 +60,7 @@ const fill = {
 
 
 (async () => {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({ headless: false });
     const formPage = await browser.newPage();
     await formPage.goto(formUrl);
 
@@ -70,6 +74,7 @@ const fill = {
         const className = await containerHandle.$eval(selector.inputType, e => e.className);
         switch (className) {
             case questionType.checkBox:
+                await fill.checkBox(containerHandle, answer);
                 break;
 
             case questionType.radio:
@@ -84,5 +89,5 @@ const fill = {
         }
     }
 
-    await browser.close();
+    // await browser.close();
 })();
