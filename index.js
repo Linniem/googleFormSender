@@ -43,24 +43,29 @@ const fill = {
 
     /**
      * @param {puppeteer.ElementHandle<Element>} handle containerHandle
-     * @param {string} input 
+     * @param {string} targetText 
      */
-    checkBox: async (handle, input) => {
-        await handle.$eval(`[data-answer-value="${input}"] .quantumWizTogglePapercheckboxCheckMark`, node => {
-            node.click();
+    checkBox: async (handle, targetText) => {
+        await handle.$eval(`[data-answer-value="${targetText}"] .quantumWizTogglePapercheckboxCheckMark`, checkBox => {
+            checkBox.click();
         });
+
     },
 
     /**
      * @param {puppeteer.ElementHandle<Element>} handle containerHandle
-     * @param {string} input 
+     * @param {string} targetText 
      */
-    radio: async (handle, input) => { },
+    radio: async (handle, targetText) => {
+        await handle.$eval(`[data-value="${targetText}"] .appsMaterialWizToggleRadiogroupRadioButtonContainer`, radio => {
+            radio.click();
+        });
+    },
 };
 
 
 (async () => {
-    const browser = await puppeteer.launch({ headless: false });
+    const browser = await puppeteer.launch();
     const formPage = await browser.newPage();
     await formPage.goto(formUrl);
 
@@ -78,6 +83,7 @@ const fill = {
                 break;
 
             case questionType.radio:
+                await fill.radio(containerHandle, answer);
                 break;
 
             case questionType.text:
@@ -89,5 +95,14 @@ const fill = {
         }
     }
 
-    // await browser.close();
+    await formPage.$eval('.freebirdFormviewerViewNavigationSubmitButton .exportLabel', button => {
+        button.click();
+    });
+    await formPage.waitForNavigation();
+    const correntUrl = await formPage.url();
+
+    const success = correntUrl.endsWith('formResponse');
+    console.log('success:', success);
+
+    await browser.close();
 })();
