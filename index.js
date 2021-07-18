@@ -31,6 +31,29 @@ const questionType = {
     radio: 'freebirdFormviewerComponentsQuestionRadioRoot',
 };
 
+const fill = {
+    /**
+     * @param {puppeteer.ElementHandle<Element>} handle containerHandle
+     * @param {string} input answer to textBox
+     */
+    text: async (handle, input) => {
+        const inputHandle = await handle.$('input.quantumWizTextinputPaperinputInput');
+        await inputHandle.type(input);
+    },
+
+    /**
+     * @param {puppeteer.ElementHandle<Element>} handle containerHandle
+     * @param {string} input 
+     */
+    checkBox: async (handle, input) => { },
+
+    /**
+     * @param {puppeteer.ElementHandle<Element>} handle containerHandle
+     * @param {string} input 
+     */
+    radio: async (handle, input) => { },
+};
+
 
 (async () => {
     const browser = await puppeteer.launch();
@@ -41,14 +64,24 @@ const questionType = {
     for (const containerHandle of containerHandles) {
         /** @type {string} */
         const rawTitleText = await containerHandle.$eval(selector.title, e => e.innerText);
-        const titleText = rawTitleText.replace('*', '').trim()
+        const question = rawTitleText.replace('*', '').trim();
+        const answer = questionAnswers.get(question);
 
-        /** @type {string} */
         const className = await containerHandle.$eval(selector.inputType, e => e.className);
+        switch (className) {
+            case questionType.checkBox:
+                break;
 
-        console.log(titleText);
-        console.log(className);
-        console.log(questionAnswers.get(titleText));
+            case questionType.radio:
+                break;
+
+            case questionType.text:
+                await fill.text(containerHandle, answer);
+                break;
+
+            default:
+                break;
+        }
     }
 
     await browser.close();
